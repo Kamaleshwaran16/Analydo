@@ -1,0 +1,7 @@
+flask==3.0.3
+flask-cors==4.0.0
+pandas
+werkzeug==3.0.1
+groq
+python-dotenv
+gunicorn

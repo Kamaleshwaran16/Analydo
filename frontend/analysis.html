@@ -1,0 +1,184 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Processing - ANALYDWO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+        
+        .loader-container {
+            text-align: center;
+            z-index: 10;
+        }
+        
+        .ai-brain {
+            font-size: 5rem;
+            margin-bottom: 2rem;
+            animation: pulse-glow 2s infinite alternate;
+            filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.8));
+        }
+        
+        @keyframes pulse-glow {
+            from { transform: scale(1); filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.4));}
+            to { transform: scale(1.05); filter: drop-shadow(0 0 30px rgba(74, 222, 128, 0.8));}
+        }
+        
+        .progress-bar-container {
+            width: 100%;
+            max-width: 400px;
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            margin: 2rem auto;
+            overflow: hidden;
+        }
+        
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+        
+        .status-text {
+            font-family: monospace;
+            color: var(--primary);
+            min-height: 24px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="particles-js"></canvas>
+    
+    <div class="page-container loader-container">
+        <div class="ai-brain">🧠</div>
+        <h2>AI Engine Analyzing Data...</h2>
+        <div class="progress-bar-container">
+            <div class="progress-bar-fill" id="progress"></div>
+        </div>
+        <div class="status-text" id="statusMsg">Initializing neural pathways...</div>
+    </div>
+
+    <script>
+        // Simple Particle Animation
+        const canvas = document.getElementById('particles-js');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let particlesArray = [];
+        const numberOfParticles = 100;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 3 + 1;
+                this.speedX = Math.random() * 3 - 1.5;
+                this.speedY = Math.random() * 3 - 1.5;
+                this.color = 'rgba(59, 130, 246, 0.5)';
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.size > 0.2) this.size -= 0.01;
+                if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function init() {
+            for (let i = 0; i < numberOfParticles; i++) {
+                particlesArray.push(new Particle());
+            }
+        }
+
+        function handleParticles() {
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+                particlesArray[i].draw();
+                
+                for (let j = i; j < particlesArray.length; j++) {
+                    const dx = particlesArray[i].x - particlesArray[j].x;
+                    const dy = particlesArray[i].y - particlesArray[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < 100) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(59, 130, 246, ${1 - distance/100})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(particlesArray[i].x, particlesArray[i].y);
+                        ctx.lineTo(particlesArray[j].x, particlesArray[j].y);
+                        ctx.stroke();
+                        ctx.closePath();
+                    }
+                }
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            handleParticles();
+            requestAnimationFrame(animate);
+        }
+
+        init();
+        animate();
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            particlesArray = [];
+            init();
+        });
+
+        // Fake AI Processing sequence
+        const messages = [
+            "Extracting column representations...",
+            "Computing statistical distributions...",
+            "Identifying data anomalies...",
+            "Generating AI insights...",
+            "Finalizing report..."
+        ];
+        
+        let progress = 0;
+        let msgIndex = 0;
+        const progressEl = document.getElementById('progress');
+        const statusMsgEl = document.getElementById('statusMsg');
+        
+        const interval = setInterval(() => {
+            progress += 2;
+            progressEl.style.width = progress + '%';
+            
+            if (progress % 20 === 0 && msgIndex < messages.length) {
+                statusMsgEl.innerText = messages[msgIndex];
+                msgIndex++;
+            }
+            
+            if (progress >= 100) {
+                clearInterval(interval);
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 500);
+            }
+        }, 60);
+
+    </script>
+</body>
+</html>

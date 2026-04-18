@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - ANALYDWO Engine</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="page-container">
+        <div class="glass-panel login-box">
+            <h1>ANALYDWO</h1>
+            <p class="logo-sub">AI Dataset Analyzer</p>
+
+            <form id="loginForm" onsubmit="event.preventDefault(); window.location.href='upload.html';">
+                <div class="input-group">
+                    <label class="input-label" for="username">Username</label>
+                    <input type="text" id="username" class="input-field" placeholder="Enter your username" required>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label" for="password">Password</label>
+                    <input type="password" id="password" class="input-field" placeholder="Enter your password" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+                    Access AI Engine
+                </button>
+            </form>
+
+            <p style="margin-top: 2rem; font-size: 0.8rem; color: #64748b;">
+                Demo Project • No actual auth needed to proceed
+            </p>
+        </div>
+    </div>
+</body>
+
+</html>

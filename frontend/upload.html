@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Dataset - ANALYDWO Engine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .upload-area {
+            border: 2px dashed rgba(59, 130, 246, 0.5);
+            border-radius: 12px;
+            padding: 3rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(0, 0, 0, 0.2);
+            margin-bottom: 2rem;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: rgba(74, 222, 128, 0.05);
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--secondary);
+        }
+        
+        .file-info {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            text-align: left;
+        }
+        
+        .action-buttons {
+            display: none;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .stat-card {
+            background: rgba(0,0,0,0.3);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-top: 0.5rem;
+        }
+        
+        /* Loader */
+        .spinner {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255,255,255,0.1);
+            border-left-color: var(--secondary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 1rem auto;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-container">
+        <div class="glass-panel" style="width: 100%; max-width: 800px;">
+            <h2 style="text-align: center; margin-bottom: 2rem;">Upload Your Dataset</h2>
+            
+            <input type="file" id="fileInput" accept=".csv" style="display: none;">
+            
+            <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-icon">📁</div>
+                <h3>Drag & Drop or Click to Browse</h3>
+                <p>Only CSV files are supported</p>
+            </div>
+            
+            <div class="spinner" id="loader"></div>
+            
+            <div class="file-info" id="fileInfo">
+                <h3 id="fileName" style="color: var(--text-main); margin-bottom: 0.5rem;">filename.csv</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div style="font-size: 0.8rem; color: var(--text-muted)">Total Rows</div>
+                        <div class="stat-value" id="valRows">-</div>
+                    </div>
+                    <div class="stat-card">
+                        <div style="font-size: 0.8rem; color: var(--text-muted)">Total Columns</div>
+                        <div class="stat-value" id="valCols">-</div>
+                    </div>
+                    <div class="stat-card">
+                        <div style="font-size: 0.8rem; color: var(--text-muted)">Missing Values</div>
+                        <div class="stat-value" id="valMissing" style="color: #ef4444;">-</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="action-buttons" id="actionButtons">
+                <button class="btn btn-outline" onclick="cleanDataset()" id="cleanBtn">Clean Dataset</button>
+                <button class="btn btn-primary" onclick="startAnalysis()">Start Analysis</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInfo = document.getElementById('fileInfo');
+        const actionButtons = document.getElementById('actionButtons');
+        const loader = document.getElementById('loader');
+        
+        fileInput.addEventListener('change', async (e) => {
+            if(e.target.files.length > 0) {
+                const file = e.target.files[0];
+                if (!file.name.endsWith('.csv')) {
+                    alert('Please upload a valid CSV file.');
+                    return;
+                }
+                
+                uploadArea.style.display = 'none';
+                loader.style.display = 'block';
+                
+                try {
+                    const result = await uploadFile(file);
+                    
+                    document.getElementById('fileName').innerText = result.filename;
+                    document.getElementById('valRows').innerText = result.rows;
+                    document.getElementById('valCols').innerText = result.columns;
+                    document.getElementById('valMissing').innerText = result.missing_values;
+                    
+                    loader.style.display = 'none';
+                    fileInfo.style.display = 'block';
+                    actionButtons.style.display = 'flex';
+                } catch (error) {
+                    alert('Upload failed: ' + error.message);
+                    uploadArea.style.display = 'block';
+                    loader.style.display = 'none';
+                }
+            }
+        });
+        
+        async function cleanDataset() {
+            const btn = document.getElementById('cleanBtn');
+            const originalText = btn.innerText;
+            btn.innerText = 'Cleaning...';
+            btn.disabled = true;
+            
+            try {
+                const result = await cleanData();
+                document.getElementById('valRows').innerText = result.rows;
+                document.getElementById('valCols').innerText = result.columns;
+                document.getElementById('valMissing').innerText = '0 (Cleaned)';
+                document.getElementById('valMissing').style.color = 'var(--primary)';
+                btn.innerText = 'Cleaned ✓';
+                btn.classList.remove('btn-outline');
+                btn.classList.add('btn-success');
+            } catch (error) {
+                alert('Clean failed: ' + error.message);
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+        
+        function startAnalysis() {
+            // Redirect to processing animation page
+            window.location.href = 'analysis.html';
+        }
+    </script>
+</body>
+</html>

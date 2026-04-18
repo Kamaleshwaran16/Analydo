@@ -1,0 +1,11 @@
+id,age,score,department
+1,25,85,IT
+2,30,90,HR
+3,45,78,Finance
+4,22,95,IT
+5,28,88,HR
+6,35,,Finance
+7,35,82,Finance
+8,40,91,IT
+9,25,85,IT
+10,,70,HR
